@@ -174,7 +174,20 @@ table1_tbl <- tibble(
 ### have been due to a mechanical error in my code, or, the hyper parameters
 ### were overtuned to prevent overfitting.
   
-## 3: 
+## 3: Among the four models, which would you choose for a real-life prediction problem, and why? Are there tradeoffs? Write up to a paragraph.
+
+### The reality is this: there is no one best model for a real-life 
+### prediction problem. This is because every real world problem is unique and 
+### and has a variety paths a data scientist can take to hone in on an answer. 
+### For instance, OLS is interpretable and unbiased, but it tends to perform 
+### poorly on out of sample prediction due to too much variance. Elastic net
+### improves on these shortfalls by adding systematic bias, but can fail to 
+### model complex interactions. Random forest and XGBoost are great at modeling 
+### complex relationships and classifying, but they are computationally 
+### expensive to run and are difficult to interpret. If one only wishes to
+### purely predict, XGboost tends to have the best performance-computation
+### tradeoff, but at the end of the day, it depends. In this case, XGboost was 
+### the highest performing model. 
   
 
   
