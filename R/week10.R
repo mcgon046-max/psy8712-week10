@@ -111,7 +111,7 @@ xgb_model <- train(
 ###### NOTE: I used an older version of xgboost because apparently caret throws a catestrophic error if I don't, this could have implications in later steps. 
 
 ## 10 fold CV estimates (training set)
-cv_estimates <- rbind(
+cv_est <- rbind(
   OLS = getTrainPerf(ols_model),
   ElasticNet = getTrainPerf(en_model),
   RandomForest = getTrainPerf(rf_model),
@@ -119,12 +119,14 @@ cv_estimates <- rbind(
 )
 
 ## Holdout CV estimates (Test set) dataframe
-holdout_estimates <- as.data.frame(rbind(
-  OLS          = postResample(pred = ols_preds, obs = test_data$mosthrs),
-  ElasticNet   = postResample(pred = en_preds, obs = test_data$mosthrs),
+holdout_est <- as.data.frame(rbind(
+  OLS = postResample(pred = ols_preds, obs = test_data$mosthrs),
+  ElasticNet = postResample(pred = en_preds, obs = test_data$mosthrs),
   RandomForest = postResample(pred = rf_preds, obs = test_data$mosthrs),
-  XGBoost      = postResample(pred = xgb_preds, obs = test_data$mosthrs)
+  XGBoost = postResample(pred = xgb_preds, obs = test_data$mosthrs)
 ))
 
 # Print the final dataframe
-print(holdout_estimates)
+print(holdout_est)
+
+#### NOTE: used getTrainPerf to look at models to find the best hyperparemeters
