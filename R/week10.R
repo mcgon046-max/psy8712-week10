@@ -51,10 +51,6 @@ ols_model <- train(
   na.action = na.pass #allows the NA
 )
 
-#### Results of model 
-print(ols_model$results)
-
-
 ### Elastic net model 
 enet_grid <- expand.grid(
   alpha = seq(0, 1, by = 0.1),
@@ -90,4 +86,11 @@ rf_model <- train(
   na.action = na.pass
 ) # Args defined in previous models not commented on
 
-
+### XGboost model 
+xgb_grid <- expand.grid(
+  nrounds = c(50, 100), # total number of sequential trees, trying multiple options to prevent overfitting
+  eta = c(0.01, 0.1), # Learning rate between two options in order to balance learning speed with finding optimal solution (0.3 default lacks sufficient depth) 
+  max_depth = c(3, 6), # 3 can find simple interactions, 6 can find complex interactions but may overfit
+  subsample = c()
+  
+)
