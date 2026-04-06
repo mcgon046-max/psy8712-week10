@@ -41,6 +41,7 @@ cv_ten <- trainControl(
 ### Impute (saves time)
 medimp <- "medianImpute"
 
+### OLS model 
 ols_model <- train(
   mosthrs ~ ., # Most hours predicted from everything else
   data = train_data, # Only using training data as is convention
@@ -49,3 +50,44 @@ ols_model <- train(
   trControl = cv_ten, # Used preset cross-validation from above
   na.action = na.pass #allows the NA
 )
+
+#### Results of model 
+print(ols_model$results)
+
+
+### Elastic net model 
+enet_grid <- expand.grid(
+  alpha = seq(0, 1, by = 0.1),
+  lambda = seq(0.0001, 0.1, length = 10)
+) # Grid parameters for testing different alpha/lambda values
+
+#### Actual model specifications 
+en_model <- train(
+  mosthrs ~ ., 
+  data = train_data, 
+  method = "glmnet", # Method for elastic net 
+  preProcess = medimp, 
+  tuneGrid = enet_grid, # Grid defined above 
+  trControl = cv_ten,
+  na.action = na.pass
+) # Same args as previous model not commented on 
+
+### Random Forest 
+rf_grid <- expand.grid(
+  mtry = c(100, 190, 280), #Mtry to force trees to be different, based on number of predictors (apparently convention is p/3 which in this case is 190) I also looked at smaller and bigger trees 
+  splitrule = "variance", # Decides on splitting the data based on variance
+  min.node.size = 5 # Limits the "growth" of new trees
+)
+
+#### Actual model specifications
+rf_model <- train(
+  mosthrs ~ ., 
+  data = train_data, 
+  method = "ranger", # Method for random forest 
+  preProcess = medimp, 
+  tuneGrid = rf_grid, # Grid defined above
+  trControl = cv_ten, 
+  na.action = na.pass
+) # Args defined in previous models not commented on
+
+
