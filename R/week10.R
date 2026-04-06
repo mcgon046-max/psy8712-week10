@@ -46,7 +46,7 @@ ols_model <- train(
   mosthrs ~ ., # Most hours predicted from everything else
   data = train_data, # Only using training data as is convention
   method = "lm", #"lm" for OLS model 
-  preProcess = medimp, #Median imputation 
+  preProcess =  c("nzv", medimp), #Median imputation, added nsv because caret was throwing an fat error
   trControl = cv_ten, # Used preset cross-validation from above
   na.action = na.pass #allows the NA
 )
@@ -62,7 +62,7 @@ en_model <- train(
   mosthrs ~ ., 
   data = train_data, 
   method = "glmnet", # Method for elastic net 
-  preProcess = medimp, 
+  preProcess =  c("nzv", medimp), 
   tuneGrid = enet_grid, # Grid defined above 
   trControl = cv_ten,
   na.action = na.pass
@@ -80,7 +80,7 @@ rf_model <- train(
   mosthrs ~ ., 
   data = train_data, 
   method = "ranger", # Method for random forest 
-  preProcess = medimp, 
+  preProcess =  c("nzv", medimp), 
   tuneGrid = rf_grid, # Grid defined above
   trControl = cv_ten, 
   na.action = na.pass
@@ -91,6 +91,40 @@ xgb_grid <- expand.grid(
   nrounds = c(50, 100), # total number of sequential trees, trying multiple options to prevent overfitting
   eta = c(0.01, 0.1), # Learning rate between two options in order to balance learning speed with finding optimal solution (0.3 default lacks sufficient depth) 
   max_depth = c(3, 6), # 3 can find simple interactions, 6 can find complex interactions but may overfit
-  subsample = c()
-  
+  subsample = c(0.8, 1), # Percentage of respondents used to build each tree 0.8 to randomly select 80% of participants, 0.1 to have everyone included
+  colsample_bytree = c(0.33, 0.66, 1), # Splits predictors into random percentages (apparently 1/3 is rule of thumb here?)
+  gamma = 0, # Turns off pruning penalty 
+  min_child_weight = 1 # default but caret requires this, minimum node weight
 )
+
+#### Actual model specifications 
+xgb_model <- train(
+  mosthrs ~ ., 
+  data = train_data, 
+  method = "xgbTree", # Specifies model as xgboost
+  preProcess = c("nzv", medimp),
+  trControl = cv_ten, 
+  tuneGrid = xgb_grid,  # Grid defined above
+  na.action = na.pass
+) # Args defined in previous models not commented on
+
+###### NOTE: I used an older version of xgboost because apparently caret throws a catestrophic error if I don't, this could have implications in later steps. 
+
+## 10 fold CV estimates (training set)
+cv_estimates <- rbind(
+  OLS = getTrainPerf(ols_model),
+  ElasticNet = getTrainPerf(en_model),
+  RandomForest = getTrainPerf(rf_model),
+  XGBoost = getTrainPerf(xgb_model)
+)
+
+## Holdout CV estimates (Test set) dataframe
+holdout_estimates <- as.data.frame(rbind(
+  OLS          = postResample(pred = ols_preds, obs = test_data$mosthrs),
+  ElasticNet   = postResample(pred = en_preds, obs = test_data$mosthrs),
+  RandomForest = postResample(pred = rf_preds, obs = test_data$mosthrs),
+  XGBoost      = postResample(pred = xgb_preds, obs = test_data$mosthrs)
+))
+
+# Print the final dataframe
+print(holdout_estimates)
