@@ -128,7 +128,7 @@ holdout_est <- as.data.frame(rbind(
   XGBoost = postResample(pred = xgb_preds, obs = test_data$mosthrs)
 ))
 
-# Print the final dataframe to check 
+### Print to check 
 print(holdout_est)
 
 #### NOTE: used getTrainPerf to look at model performance, postResample as a specific call to resample post training
@@ -146,11 +146,35 @@ format_ml_assign <- function(x) {
 ## Table 1 tibble 
 table1_tbl <- tibble(
   algo = c("OLS regression", "elastic net", "random forest", "eXtreme Gradient Boosting"),
-  cv_rsq = format_ml_assign(cv_est$TrainRsquared),
-  ho_rsq = format_ml_assign(holdout_est$Rsquared)
+  cv_rsq = format_ml_assign(cv_est$TrainRsquared), # Pull r squared from main cv 
+  ho_rsq = format_ml_assign(holdout_est$Rsquared) # Pull r squared from holdout 
 ) 
 
 ## Write csv
   write_csv(table1_tbl, "../out/table1.csv")
 
+# Assignment Questions: 
+## 1: How did your results change between models? Why do you think this happened, specifically?
+  
+### Based on the outputs sen in table 1, it appears that as model 
+### complexity goes up, as does prediction. OLS regression performed very 
+### poorly with an R^2 of .02/.01. This was improved significantly when 
+### Coefficients were penalized in elastic net regression which had an R^2
+### of (0.43/0.42). Finally, the two best performing models were random forest
+### and xgboost. Both we're comparable at an r^2 of around .6. These likely out
+### performed the simpler regressions due the ability to model complex, 
+### non-linear relationships
+  
+## 2: How did your results change between k-fold CV and holdout CV? Why do you think this happened, specifically?
+  
+### For the linear regression models (OLS/Elastic Net), the holdout R^2 dropped
+### slightly compared to the holdout cv R^2. This is expected because models 
+### generally perform worse on completely untrained data. Interestingly, for
+### random forest and xgboost, the holdout r^2 was actually higher. This could 
+### have been due to a mechanical error in my code, or, the hyper parameters
+### were overtuned to prevent overfitting.
+  
+## 3: 
+  
 
+  
