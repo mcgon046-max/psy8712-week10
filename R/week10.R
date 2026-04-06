@@ -120,6 +120,7 @@ cv_est <- rbind(
 
 ### Print to check 
 print(cv_est)
+
 ## Holdout CV estimates (Test set) dataframe
 holdout_est <- as.data.frame(rbind(
   OLS = postResample(pred = ols_preds, obs = test_data$mosthrs),
@@ -132,6 +133,8 @@ holdout_est <- as.data.frame(rbind(
 print(holdout_est)
 
 #### NOTE: used getTrainPerf to look at model performance, postResample as a specific call to resample post training
+#### Of course,  in each line the data is partitioned first by model and second only looking at the "mosthrs" variable 
+
 
 # Publication 
 
