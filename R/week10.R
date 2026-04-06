@@ -22,3 +22,5 @@ gss_tbl |>
     y = "Number of Respondents"
   ) +
   theme_minimal()
+
+# Analysis 
