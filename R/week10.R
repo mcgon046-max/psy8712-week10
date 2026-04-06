@@ -118,6 +118,8 @@ cv_est <- rbind(
   XGBoost = getTrainPerf(xgb_model)
 )
 
+### Print to check 
+print(cv_est)
 ## Holdout CV estimates (Test set) dataframe
 holdout_est <- as.data.frame(rbind(
   OLS = postResample(pred = ols_preds, obs = test_data$mosthrs),
@@ -126,7 +128,29 @@ holdout_est <- as.data.frame(rbind(
   XGBoost = postResample(pred = xgb_preds, obs = test_data$mosthrs)
 ))
 
-# Print the final dataframe
+# Print the final dataframe to check 
 print(holdout_est)
 
-#### NOTE: used getTrainPerf to look at models to find the best hyperparemeters
+#### NOTE: used getTrainPerf to look at model performance, postResample as a specific call to resample post training
+
+# Publication 
+
+## Formatting function 
+format_ml_assign <- function(x) {
+  x_rounded <- sprintf("%.2f", x) # Rounds to two decimals 
+  x_no_zero <- str_replace(x_rounded, "^0\\.", ".") # Drop leading zero for positives
+  x_final <- str_replace(x_no_zero, "^-0\\.", "-.") # Drop leading zero for negatives (Doesn't occur)
+  return(x_final)
+} 
+
+## Table 1 tibble 
+table1_tbl <- tibble(
+  algo = c("OLS regression", "elastic net", "random forest", "eXtreme Gradient Boosting"),
+  cv_rsq = format_ml_assign(cv_est$TrainRsquared),
+  ho_rsq = format_ml_assign(holdout_est$Rsquared)
+) 
+
+## Write csv
+  write_csv(table1_tbl, "../out/table1.csv")
+
+

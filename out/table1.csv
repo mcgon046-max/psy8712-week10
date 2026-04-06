@@ -1,0 +1,5 @@
+algo,cv_rsq,ho_rsq
+OLS regression,.02,.01
+elastic net,.43,.42
+random forest,.60,.66
+eXtreme Gradient Boosting,.61,.67
